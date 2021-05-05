@@ -1,0 +1,60 @@
+[Writable]
+LogLevel = 'INFO'
+
+[Service]
+BootTimeout = 30000
+CheckInterval = '10s'
+Host = '192.168.0.11'
+ServerBindAddr = ''  # blank value defaults to Service.Host value
+Port = 49993
+Protocol = 'http'
+StartupMsg = 'device snmp GO started'
+Timeout = 5000
+ConnectRetries = 10
+Labels = []
+EnableAsyncReadings = true
+AsyncBufferSize = 16
+
+[Registry]
+Host = 'localhost'
+Port = 8500
+Type = 'consul'
+
+[Clients]
+  [Clients.Data]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48080
+
+  [Clients.Metadata]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48081
+
+[Device]
+  DataTransform = true
+  InitCmd = ''
+  InitCmdArgs = ''
+  MaxCmdOps = 128
+  MaxCmdValueLen = 256
+  RemoveCmd = ''
+  RemoveCmdArgs = ''
+  ProfilesDir = './res'
+  UpdateLastConnected = false
+
+# Pre-define Devices
+# NOTE: You will need to modify the Address to a DNS or named resource potentially.
+#       Port 161 is the default SNMP provider port.
+[[DeviceList]]
+  Name = 'patlite'
+  Profile = 'patlite'
+  Description = 'Patlite Signal Tower interface'
+  Labels = [ 'device-snmp-patlite' ]
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.TCP]
+    Address = '192.168.0.14'
+    Port = '161'
+  [[DeviceList.AutoEvents]]
+    Frequency = '10s'
+    OnChange = true
+    Resource = 'RedLightCurrentState'

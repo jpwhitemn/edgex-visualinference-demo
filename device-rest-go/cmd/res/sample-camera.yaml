@@ -1,0 +1,45 @@
+name: "visualinference"
+manufacturer: "IOTech Systems"
+model: "visual inference ingestion"
+labels:
+ - "rest"
+description: "REST Device that sends in camera visual inference data"
+
+deviceResources:
+  - name: thing
+    description: "thing type"
+    properties:
+      value:
+        { type: "String", readWrite: "W" , mediaType : "text/plain" }
+      units:
+        { type: "String", readWrite: "R" }
+  - name: score
+    description: "score value"
+    properties:
+      value:
+        { type: "Int64", readWrite: "W" , mediaType : "text/plain" }
+      units:
+        { type: "String", readWrite: "R"}
+  - name: camera
+    description: "camera name"
+    properties:
+      value:
+        { type: "String", readWrite: "W" , mediaType : "text/plain" }
+      units:
+        { type: "String", readWrite: "R" }
+
+deviceCommands:
+  - name: PostThing
+    get:
+      - { operation: "get", deviceResource: "thing"}
+  - name: PostScore
+    get:
+      - { operation: "get", deviceResource: "score"}
+  - name: PostCamera
+    get:
+      - { operation: "get", deviceResource: "camera"}
+  - name: visualinference
+    get:
+      - { operation: "get", deviceResource: "thing"}
+      - { operation: "get", deviceResource: "score"}
+      - { operation: "get", deviceResource: "camera"}

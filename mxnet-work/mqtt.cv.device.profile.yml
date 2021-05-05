@@ -1,0 +1,50 @@
+# mqtt.cv.device.profile.yml
+name: "CV.Device.MQTT.Profile"
+manufacturer: "IOTech"
+model: "MQTT-DEVICE"
+description: "camera visual inference device profile"
+labels:
+  - "mqtt"
+  - "vi"
+  - "cv"
+deviceResources:
+  - name: score
+    description: "visual inference score"
+    properties:
+      value:
+        { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", floatEncoding: "Base64" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+  - name: thing
+    description: "thing detected"
+    properties:
+      value:
+        { type: "String", size: "0", readWrite: "R" ,scale: "", offset: "", base: ""  }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+
+deviceCommands:
+- name: score
+  get:
+    - { index: "1", operation: "get", deviceResource: "score"}
+- name: thing
+  get:
+    - { index: "1", operation: "get", deviceResource: "thing"}
+- name: cv
+  get:
+    - { index: "1", operation: "get", deviceResource: "thing"}
+    - { index: "2", operation: "get", deviceResource: "score"}
+  
+
+coreCommands:
+- name: cv
+  get:
+    path: "/api/v1/device/{deviceId}/cv"
+    responses:
+    -
+      code: "200"
+      description: "get the visual inference thing and score"
+      expectedValues: ["thing", "score"]
+    - code: "500"
+      description: "internal server error"
+      expectedValues: []

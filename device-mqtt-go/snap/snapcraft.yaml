@@ -1,0 +1,103 @@
+name: edgex-device-mqtt
+base: core18
+version: "replace-me"
+license: Apache-2.0
+version-script: |
+  if [ -f VERSION ]; then
+    PROJECT_VERSION=$(cat VERSION)
+  else
+    PROJECT_VERSION=local-dev
+  fi
+  echo $PROJECT_VERSION-$(date +%Y%m%d)+$(git rev-parse --short HEAD)
+summary: Connect data MQTT to EdgeX using device-mqtt reference Device Service
+title: EdgeX MQTT Device Service
+description: |
+  The official reference EdgeX device-mqtt Device Service built using the 
+  device-sdk-go to interact with MQTT brokers. 
+  Initially the daemon in the snap is disabled - a device profile must be
+  provisioned externally with core-metadata or provided to device-mqtt inside
+  "$SNAP_DATA/config/device-mqtt/res" before starting.
+
+# TODO: add armhf when the project supports this
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+
+grade: stable
+confinement: strict
+
+# edinburgh release is epoch 1
+epoch: 1
+
+apps:
+  device-mqtt:
+    adapter: none
+    command: bin/device-mqtt -confdir $SNAP_DATA/config/device-mqtt -profile res --registry $CONSUL_ADDR
+    command-chain:
+      - bin/startup-env-var.sh
+    environment:
+      CONSUL_ADDR: "consul://localhost:8500"
+      DEVICE_PROFILESDIR: $SNAP_DATA/config/device-mqtt/res
+      WRITABLE_LOGLEVEL: 'INFO'
+    daemon: simple
+    plugs: [network, network-bind]
+
+parts:
+  go:
+    plugin: nil
+    source: snap/local
+    build-packages: [curl]
+    override-build: |
+      # use dpkg architecture to figure out our target arch
+      # note - we specifically don't use arch
+      case "$(dpkg --print-architecture)" in
+        amd64)
+          FILE_NAME=go1.15.2.linux-amd64.tar.gz
+          FILE_HASH=b49fda1ca29a1946d6bb2a5a6982cf07ccd2aba849289508ee0f9918f6bb4552
+          ;;
+        arm64)
+          FILE_NAME=go1.15.2.linux-arm64.tar.gz
+          FILE_HASH=c8ec460cc82d61604b048f9439c06bd591722efce5cd48f49e19b5f6226bd36d
+          ;;
+        armhf)
+          FILE_NAME=go1.15.2.linux-armv6l.tar.gz
+          FILE_HASH=c12e2afdcb21e530d332d4994919f856dd2a676e9d67034c7d6fefcb241412d9
+          ;;
+        i386)
+          FILE_NAME=go1.15.2.linux-386.tar.gz
+          FILE_HASH=5a91080469df6b91f1022bdfb0ca75e01ca50387950b13518def3d0a7f6af9f1
+          ;;
+      esac
+      # download the archive, failing on ssl cert problems
+      curl https://dl.google.com/go/$FILE_NAME -O
+      echo "$FILE_HASH $FILE_NAME" > sha256
+      sha256sum -c sha256 | grep OK
+      tar -C $SNAPCRAFT_STAGE -xf go*.tar.gz --strip-components=1
+    prime:
+      - "-*"
+
+  device-mqtt:
+    source: .
+    plugin: make
+    build-packages: [git]
+    after: [go]
+    override-build: |
+      cd $SNAPCRAFT_PART_SRC
+      make build
+
+      install -DT "./cmd/device-mqtt" "$SNAPCRAFT_PART_INSTALL/bin/device-mqtt"
+
+      # cp configuration.toml from example, as it includes a pre-defined device
+      install -DT "./cmd/res/example/configuration.toml" "$SNAPCRAFT_PART_INSTALL/config/device-mqtt/res/configuration.toml"
+
+      install -DT "./cmd/res/example/mqtt.test.device.profile.yml" \
+        "$SNAPCRAFT_PART_INSTALL/config/device-mqtt/res/mqtt.test.device.profile.yml"
+
+      install -DT "./Attribution.txt" \
+         "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-mqtt/Attribution.txt"
+      install -DT "./LICENSE" \
+         "$SNAPCRAFT_PART_INSTALL/usr/share/doc/device-mqtt/LICENSE"
+
+  config-common:
+    plugin: dump
+    source: snap/local/runtime-helpers

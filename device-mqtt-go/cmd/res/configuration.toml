@@ -1,0 +1,91 @@
+[Writable]
+LogLevel = 'DEBUG'
+
+[Service]
+BootTimeout = 30000
+CheckInterval = '10s'
+Host = 'localhost'
+ServerBindAddr = 'localhost'  # blank value defaults to Service.Host value
+Port = 49982
+Protocol = 'http'
+StartupMsg = 'device mqtt started'
+Timeout = 5000
+ConnectRetries = 10
+Labels = []
+EnableAsyncReadings = true
+AsyncBufferSize = 16
+
+[Registry]
+Host = 'localhost'
+Port = 8500
+Type = 'consul'
+
+[Logging]
+EnableRemote = false
+File = ''
+
+[Clients]
+  [Clients.Data]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48080
+
+  [Clients.Metadata]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48081
+
+  [Clients.Logging]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48061
+
+[Device]
+  DataTransform = true
+  InitCmd = ''
+  InitCmdArgs = ''
+  MaxCmdOps = 128
+  MaxCmdValueLen = 256
+  RemoveCmd = ''
+  RemoveCmdArgs = ''
+  ProfilesDir = './res/example'
+  UpdateLastConnected = false
+
+# Pre-define Devices
+[[DeviceList]]
+  Name = 'vi-device'
+  Profile = 'VI.Feed.Profile'
+  Description = 'MQTT feed from visual inference system'
+  Labels = [ 'MQTT', 'visual inference' ]
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.mqtt]
+       Schema = 'tcp'
+       Host = '0.0.0.0'
+       Port = '1883'
+       ClientId = 'CommandPublisher'
+       User = 'admin'
+       Password = 'public'
+       Topic = 'CommandTopic'
+
+# Driver configs
+[Driver]
+IncomingSchema = 'tcp'
+IncomingHost = '0.0.0.0'
+IncomingPort = '1883'
+IncomingUser = 'admin'
+IncomingPassword = 'public'
+IncomingQos = '0'
+IncomingKeepAlive = '3600'
+IncomingClientId = 'IncomingDataSubscriber'
+IncomingTopic = 'DataTopic'
+ResponseSchema = 'tcp'
+ResponseHost = '0.0.0.0'
+ResponsePort = '1883'
+ResponseUser = 'admin'
+ResponsePassword = 'public'
+ResponseQos = '0'
+ResponseKeepAlive = '3600'
+ResponseClientId = 'CommandResponseSubscriber'
+ResponseTopic = 'ResponseTopic'
+ConnEstablishingRetry = '10'
+ConnRetryWaitTime = '5'

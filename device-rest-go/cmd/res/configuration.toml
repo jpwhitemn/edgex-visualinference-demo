@@ -1,0 +1,64 @@
+[Writable]
+LogLevel = 'DEBUG'
+
+[Service]
+BootTimeout = 30000
+CheckInterval = '10s'
+Host = 'localhost'
+ServerBindAddr = 'localhost'  # blank value defaults to Service.Host value
+Port = 49986
+Protocol = 'http'
+StartupMsg = 'REST device started'
+Timeout = 5000
+ConnectRetries = 20
+Labels = []
+EnableAsyncReadings = true
+AsyncBufferSize = 16
+
+[Registry]
+Host = 'localhost'
+Port = 8500
+Type = 'consul'
+
+[Clients]
+  [Clients.Data]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48080
+
+  [Clients.Metadata]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48081
+
+  [Clients.Logging]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48061
+
+[Device]
+  DataTransform = true
+  InitCmd = ''
+  InitCmdArgs = ''
+  MaxCmdOps = 128
+  MaxCmdValueLen = 256
+  RemoveCmd = ''
+  RemoveCmdArgs = ''
+  ProfilesDir = './res'
+  UpdateLastConnected = false
+
+# Driver configs
+[Driver]
+
+[Logging]
+EnableRemote = false
+File = ''
+
+# Pre-define Devices
+[[DeviceList]]
+  Name = 'visualinference'
+  Profile = 'visualinference'
+  Description = 'RESTful Device that sends in visual inference data'
+  Labels = [ 'rest', 'camera' ]
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.other]

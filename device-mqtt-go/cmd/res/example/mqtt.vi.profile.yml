@@ -1,0 +1,55 @@
+name: "VI.Feed.Profile"
+manufacturer: "IOTech"
+model: "VI-1"
+labels:
+- "camera"
+- "inference"
+description: "visual inference camera data profile"
+deviceResources:
+
+- name: subject
+  description: "visual inference object type detected"
+  properties:
+    value:
+      { type: "String", size: "0", readWrite: "R", defaultValue: "none"  }
+    units:
+      { type: "String", readWrite: "R", defaultValue: "" }
+- name: score
+  description: "visual inference identification score associated with subject"
+  properties:
+    value:
+      { type: "Int32", readWrite: "R" }
+    units:
+      { type: "String", readWrite: "R", defaultValue: "" }
+
+deviceCommands:
+- name: subject
+  get:
+    - { index: "1", operation: "get", deviceResource: "subject"}
+- name: score
+  get:
+    - { index: "1", operation: "get", deviceResource: "score"}
+
+# coreCommands:
+# - name: subject
+#   get:
+#     path: "/api/v1/device/{deviceId}/subject"
+#     responses:
+#     -
+#       code: "200"
+#       description: "get the subject value"
+#       expectedValues: ["subject"]
+#     - code: "500"
+#       description: "internal server error"
+#       expectedValues: []
+# - name: score
+#   get:
+#     path: "/api/v1/device/{deviceId}/score"
+#     responses:
+#     -
+#       code: "200"
+#       description: "get the score value"
+#       expectedValues: ["score"]
+#     - code: "500"
+#       description: "internal server error"
+#       expectedValues: []

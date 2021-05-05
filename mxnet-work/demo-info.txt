@@ -1,0 +1,45 @@
+# GStreamer a USB camera for a particular host on a port
+gst-launch-1.0 v4l2src device="/dev/video0" ! videoconvert !  jpegenc ! rtpjpegpay ! udpsink  host=localhost port=5000
+
+# GStreamer receive a camera feed to autosink for testing
+gst-launch-1.0 udpsrc uri="udp://192.168.0.12:5000" ! application/x-rtp,encoding-name=jpeg,payload=26 ! rtpjpegdepay ! jpegdec ! videoconvert ! autovideosink
+
+
+#Website on Gstreamer basics
+http://www.einarsundgren.se/gstreamer-basic-real-time-streaming-tutorial/
+
+#GStreamer go package (for when we want to create go Device Service
+https://github.com/notedit/gstreamer-go
+
+
+#Other examples of send/receive of GStreamer
+
+gst-launch-1.0 appsrc ! videoconvert ! videoscale ! video/x-raw,format=I420,width=640,height=480,framerate=5/1 !  videoconvert ! x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! rtph264pay ! udpsink host=192.168.0.12 port=5000
+
+gst-launch-1.0 udpsrc address=192.168.0.11 port=5000 ! application/x-rtp,encoding-name=jpeg,payload=26 ! rtpjpegdepay ! jpegdec ! autovideosink
+
+
+#MXNet Gluon documentation
+https://cv.gluon.ai/build/examples_detection/demo_webcam.html#
+
+#python tutorial
+https://www.w3schools.com/python/default.asp
+
+
+TODO
+Device Service for camera
+VI service calls DS for URL (and status)
+VI service sends data via MQTT or REST
+Parameterize the VI service
+Rules engine to act off data to trip patlite
+Do the same thing with Tensor Flow Lite
+
+
+Demo
+-----
+Run standard EdgeX (Hanoi version) with REST device service running
+
+Run this in a terimal to start the camera stream capture and make it available over port 5000 to the host listed
+gst-launch-1.0 v4l2src device="/dev/video1" ! videoconvert !  jpegenc ! rtpjpegpay ! udpsink  host=192.168.0.11 port=5000
+
+Run pgrogra2.py to start getting the visual inference from the stream and passing it to the REST device service
